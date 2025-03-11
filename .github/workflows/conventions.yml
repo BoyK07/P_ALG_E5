@@ -11,6 +11,10 @@ on:
 jobs:
   security-check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: /MakersMarkt
+    
     services:
       mysql:
         image: mysql:8.0
@@ -25,6 +29,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          path: /MakersMarkt
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -34,13 +40,10 @@ jobs:
           coverage: none
         
       - name: Install dependencies
-        run: composer install --working-dir=./MakersMarkt --prefer-dist --no-progress
+        run: composer install --prefer-dist --no-progress
 
       - name: Install Security Checker
-        run: composer require --working-dir=./Makersmarkt --dev enlightn/security-checker
-
-      - name: Install MySQL dependencies
-        run: composer install --working-dir=./MakersMarkt --prefer-dist --no-progress
+        run: composer require --dev enlightn/security-checker
 
       - name: Check for security vulnerabilities
         run: vendor/bin/security-checker security:check composer.lock
