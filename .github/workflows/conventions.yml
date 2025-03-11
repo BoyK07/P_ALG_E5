@@ -24,6 +24,9 @@ jobs:
           coverage: none
 
       - name: Install dependencies
+        run: cd MakersMarkt
+        
+      - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
       - name: Install Security Checker
