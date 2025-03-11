@@ -11,6 +11,16 @@ on:
 jobs:
   security-check:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: makersmarkt
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost --silent" --health-interval=10s --health-timeout=5s --health-retries=3
     
     steps:
       - name: Checkout code
@@ -22,16 +32,15 @@ jobs:
           php-version: '8.2'
           tools: composer:v2
           coverage: none
-
-      - name: Install dependencies
-        run: cd MakersMarkt
         
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer install --working-dir=./MakersMarkt --prefer-dist --no-progress
 
       - name: Install Security Checker
-        run: |
-          composer require --dev enlightn/security-checker
+        run: composer require --working-dir=./Makersmarkt --dev enlightn/security-checker
+
+      - name: Install MySQL dependencies
+        run: composer install --working-dir=./MakersMarkt --prefer-dist --no-progress
 
       - name: Check for security vulnerabilities
         run: vendor/bin/security-checker security:check composer.lock
