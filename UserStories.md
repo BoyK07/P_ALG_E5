@@ -3,7 +3,7 @@
 ### **Gebruikersregistratie en Authenticatie**
 **Als een** kunstenaar,  
 **wil ik** een account kunnen aanmaken en inloggen met een unieke gebruikersnaam en wachtwoord,  
-**zodat** ik mijn producten kan beheren en verkopen.  
+**zodat** ik mijn portfolio en productcatalogus kan beheren.  
 
 #### Acceptatiecriteria
 1. Een kunstenaar kan zelfstandig een account registreren.
