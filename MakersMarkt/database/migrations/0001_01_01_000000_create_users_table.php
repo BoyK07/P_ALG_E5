@@ -12,15 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+            // Original Laravel/Breeze fields
             $table->id();
             $table->string('name');
+            $table->string('username')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+
+            // Custom ERD fields
+            $table->decimal('store_credit', 10, 2)->default(0);
+            $table->text('profile_bio')->nullable();
+            $table->string('profile_image')->nullable();
+            $table->text('contact_info')->nullable();
+            $table->date('registration_date')->default(now());
+
+            // More Laravel/Breeze fields
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
         });
 
+        // These are other standard tables created by Laravel
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
