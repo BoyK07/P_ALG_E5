@@ -11,9 +11,6 @@ on:
 jobs:
   security-check:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: /MakersMarkt
     
     services:
       mysql:
@@ -29,9 +26,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          path: /MakersMarkt
-
+      
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -41,12 +36,15 @@ jobs:
         
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
+        working-directory: MakersMarkt
 
       - name: Install Security Checker
         run: composer require --dev enlightn/security-checker
+        working-directory: MakersMarkt
 
       - name: Check for security vulnerabilities
         run: vendor/bin/security-checker security:check composer.lock
+        working-directory: MakersMarkt
 
       - name: Check CSRF token usage
         run: |
@@ -65,6 +63,7 @@ jobs:
           
           chmod +x check_csrf.sh
           ./check_csrf.sh
+        working-directory: MakersMarkt
 
       - name: Check for raw SQL queries
         run: |
@@ -113,6 +112,7 @@ jobs:
           
           chmod +x check_raw_sql.sh
           ./check_raw_sql.sh
+        working-directory: MakersMarkt
 
       - name: Check for proper XSS protection
         run: |
@@ -132,6 +132,7 @@ jobs:
           
           chmod +x check_xss.sh
           ./check_xss.sh
+        working-directory: MakersMarkt
 
       - name: Check request validation
         run: |
@@ -160,3 +161,4 @@ jobs:
           
           chmod +x check_validation.sh
           ./check_validation.sh
+        working-directory: MakersMarkt
