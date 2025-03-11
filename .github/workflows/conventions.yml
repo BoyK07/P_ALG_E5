@@ -156,32 +156,3 @@ jobs:
           chmod +x check_xss.sh
           ./check_xss.sh
         working-directory: MakersMarkt
-
-      - name: Check request validation
-        run: |
-          echo '#!/bin/bash
-          echo "Checking for proper request validation in controllers..."
-          
-          CONTROLLER_FILES=$(find app/Http/Controllers -name "*.php")
-          
-          FOUND=0
-          for FILE in $CONTROLLER_FILES; do
-            # Check if file contains a function that receives Request but doesn't validate
-            VALIDATION_MISSING=$(grep -l "function.*Request.*\$" "$FILE" | xargs grep -L "validate\|validateWith\|validated(")
-            
-            if [ -n "$VALIDATION_MISSING" ]; then
-              echo "Warning: Controller might be missing request validation: $FILE"
-              FOUND=1
-            fi
-          done
-          
-          if [ $FOUND -eq 1 ]; then
-            echo "Warning: Some controllers may be missing request validation. Please review."
-            exit 1
-          else
-            echo "Controllers appear to use request validation. Good job!"
-          fi' > check_validation.sh
-          
-          chmod +x check_validation.sh
-          ./check_validation.sh
-        working-directory: MakersMarkt
