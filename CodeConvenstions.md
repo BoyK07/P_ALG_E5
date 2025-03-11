@@ -40,7 +40,6 @@
 ### **Authentication & Authorization**
 - **Role-Based Access Control (RBAC)** voor gebruikers (`maker`, `buyer`, `moderator`).
 - Laravel's ingebouwde authenticatiesysteem wordt gebruikt voor veilige inlogverwerking.
-- **Inlogpogingen loggen**, accounts worden tijdelijk geblokkeerd na meerdere mislukte pogingen.
 
 ### **Sensitive Data Handling**
 - **Wachtwoorden hashen met bcrypt** (`Hash::make()`).
@@ -53,7 +52,7 @@
 
 ### **Attack Prevention**
 - **CSRF Protection**: Gebruik `@csrf` in Blade forms.
-- **XSS Protection**: Escape output met `{{ $variable }}` in Blade.
+- **XSS Protection**: Escape output met `{{! $variable !}}` in Blade.
 - **SQL Injection Protection**: Gebruik **prepared statements** en **Eloquent ORM**.
 
 ---
