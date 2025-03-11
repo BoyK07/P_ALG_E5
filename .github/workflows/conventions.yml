@@ -1,0 +1,147 @@
+name: PHP Security Check
+
+on:
+  push:
+    branches: [ master, feature, hotfix, bugfix ]
+  pull_request:
+    branches: [ master, feature, hotfix, bugfix ]
+  schedule:
+    - cron: '0 8 * * 1' # Run weekly on Monday at 8:00 UTC
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Install Security Checker
+        run: |
+          composer require --dev enlightn/security-checker
+
+      - name: Check for security vulnerabilities
+        run: vendor/bin/security-checker security:check composer.lock
+
+      - name: Check CSRF token usage
+        run: |
+          echo '#!/bin/bash
+          echo "Checking for proper CSRF token usage in Blade forms..."
+          
+          FORMS_WITHOUT_CSRF=$(grep -r "<form" --include="*.blade.php" resources/views/ | grep -v "@csrf")
+          
+          if [ -n "$FORMS_WITHOUT_CSRF" ]; then
+            echo "Warning: Forms without CSRF protection found:"
+            echo "$FORMS_WITHOUT_CSRF"
+            exit 1
+          else
+            echo "All forms appear to have CSRF protection. Good job!"
+          fi' > check_csrf.sh
+          
+          chmod +x check_csrf.sh
+          ./check_csrf.sh
+
+      - name: Check for raw SQL queries
+        run: |
+          echo '#!/bin/bash
+          echo "Checking for raw SQL queries..."
+          
+          RAW_SQL_PATTERNS=(
+            "DB::select\("
+            "DB::insert\("
+            "DB::update\("
+            "DB::delete\("
+            "DB::statement\("
+            "DB::unprepared\("
+            "\->whereRaw\("
+            "\->selectRaw\("
+          )
+          
+          EXCLUDE_DIRS=(
+            "vendor"
+            "node_modules"
+            "storage"
+            ".git"
+            "tests"
+            "database/migrations"
+            "database/seeders"
+          )
+          
+          EXCLUDE_PATTERN=$(printf " --exclude-dir=%s" "${EXCLUDE_DIRS[@]}")
+          
+          FOUND=0
+          for PATTERN in "${RAW_SQL_PATTERNS[@]}"; do
+            RESULTS=$(grep -r -E $EXCLUDE_PATTERN "$PATTERN" app/)
+            if [ -n "$RESULTS" ]; then
+              echo "Raw SQL usage found:"
+              echo "$RESULTS"
+              FOUND=1
+            fi
+          done
+          
+          if [ $FOUND -eq 1 ]; then
+            echo "Warning: Raw SQL usage found! Consider using Eloquent ORM instead."
+            exit 1
+          else
+            echo "No raw SQL usage found. Good job!"
+          fi' > check_raw_sql.sh
+          
+          chmod +x check_raw_sql.sh
+          ./check_raw_sql.sh
+
+      - name: Check for proper XSS protection
+        run: |
+          echo '#!/bin/bash
+          echo "Checking for proper XSS protection in Blade templates..."
+          
+          UNESCAPED_OUTPUT=$(grep -r "{{" --include="*.blade.php" resources/views/ | grep -v "{{!" | grep -v "{{{ " | grep -v "@" | grep -v "csrf")
+          
+          if [ -n "$UNESCAPED_OUTPUT" ]; then
+            echo "Warning: Potentially unescaped output found in Blade templates:"
+            echo "$UNESCAPED_OUTPUT"
+            echo "Consider using {{! \$variable !}} for untrusted content."
+            exit 1
+          else
+            echo "No obvious unescaped output found in Blade templates. Good job!"
+          fi' > check_xss.sh
+          
+          chmod +x check_xss.sh
+          ./check_xss.sh
+
+      - name: Check request validation
+        run: |
+          echo '#!/bin/bash
+          echo "Checking for proper request validation in controllers..."
+          
+          CONTROLLER_FILES=$(find app/Http/Controllers -name "*.php")
+          
+          FOUND=0
+          for FILE in $CONTROLLER_FILES; do
+            # Check if file contains a function that receives Request but doesn't validate
+            VALIDATION_MISSING=$(grep -l "function.*Request.*\$" "$FILE" | xargs grep -L "validate\|validateWith\|validated(")
+            
+            if [ -n "$VALIDATION_MISSING" ]; then
+              echo "Warning: Controller might be missing request validation: $FILE"
+              FOUND=1
+            fi
+          done
+          
+          if [ $FOUND -eq 1 ]; then
+            echo "Warning: Some controllers may be missing request validation. Please review."
+            exit 1
+          else
+            echo "Controllers appear to use request validation. Good job!"
+          fi' > check_validation.sh
+          
+          chmod +x check_validation.sh
+          ./check_validation.sh
