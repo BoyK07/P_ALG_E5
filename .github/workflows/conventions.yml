@@ -37,7 +37,7 @@ jobs:
         run: composer install --working-dir=./MakersMarkt --prefer-dist --no-progress
 
       - name: Install Security Checker
-        run: composer require --working-dir=./Makersmarkt --dev enlightn/security-checker
+        run: composer require --working-dir=./MakersMarkt --dev enlightn/security-checker
 
       - name: Install MySQL dependencies
         run: composer install --working-dir=./MakersMarkt --prefer-dist --no-progress
