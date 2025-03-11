@@ -1,4 +1,4 @@
-name: PHP Security Check
+name: Conventions Ensuration
 
 on:
   push:
