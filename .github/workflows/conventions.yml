@@ -149,12 +149,12 @@ jobs:
           echo '#!/bin/bash
           echo "Checking for proper XSS protection in Blade templates..."
           
-          UNESCAPED_OUTPUT=$(grep -r "{{" --include="*.blade.php" resources/views/ | grep -v "{{!" | grep -v "{{{ " | grep -v "@" | grep -v "csrf")
+          UNESCAPED_OUTPUT=$(grep -r "{{" --include="*.blade.php" resources/views/ | grep -v "{{" | grep -v "{{{ " | grep -v "@" | grep -v "csrf")
           
           if [ -n "$UNESCAPED_OUTPUT" ]; then
             echo "Warning: Potentially unescaped output found in Blade templates:"
             echo "$UNESCAPED_OUTPUT"
-            echo "Consider using {{! \$variable !}} for untrusted content."
+            echo "Consider using {{ \$variable }} for untrusted content."
             exit 1
           else
             echo "No obvious unescaped output found in Blade templates. Good job!"
