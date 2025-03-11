@@ -15,11 +15,11 @@ return new class extends Migration
             // Original Laravel/Breeze fields
             $table->id();
             $table->string('name');
-            $table->string('username')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
 
             // Custom ERD fields
+            $table->string('username')->unique();
             $table->decimal('store_credit', 10, 2)->default(0);
             $table->text('profile_bio')->nullable();
             $table->string('profile_image')->nullable();
