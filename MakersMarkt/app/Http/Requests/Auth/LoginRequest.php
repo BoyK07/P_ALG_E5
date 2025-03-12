@@ -13,8 +13,10 @@ class LoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
@@ -22,12 +24,12 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -35,17 +37,35 @@ class LoginRequest extends FormRequest
     /**
      * Attempt to authenticate the request's credentials.
      *
+     * @return void
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(): void
+    public function authenticate()
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // Determine if the input is email or username
+        $loginField = filter_var($this->input('email'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        // Normalize username to lowercase if that's the login field
+        $loginValue = $loginField === 'username' ? Str::lower($this->input('email')) : $this->input('email');
+
+        $credentials = [
+            $loginField => $loginValue,
+            'password' => $this->input('password'),
+        ];
+
+        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            // Check if the user exists to provide more specific error feedback
+            $userExists = \App\Models\User::where($loginField, $loginValue)->exists();
+
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => $userExists
+                    ? __('auth.password')
+                    : __('auth.failed'),
             ]);
         }
 
@@ -55,9 +75,11 @@ class LoginRequest extends FormRequest
     /**
      * Ensure the login request is not rate limited.
      *
+     * @return void
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function ensureIsNotRateLimited(): void
+    public function ensureIsNotRateLimited()
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
@@ -77,9 +99,13 @@ class LoginRequest extends FormRequest
 
     /**
      * Get the rate limiting throttle key for the request.
+     *
+     * @return string
      */
-    public function throttleKey(): string
+    public function throttleKey()
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        // Include both the input value and IP in the throttle key
+        // This prevents an attacker from trying different usernames from the same IP
+        return Str::lower($this->input('email')).'|'.$this->ip();
     }
 }
