@@ -1,0 +1,43 @@
+name: Laravel Tests
+
+on:
+  push:
+    branches: [ master, feature, hotfix, bugfix ]
+  pull_request:
+    branches: [ master, feature, hotfix, bugfix ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+        working-directory: MakersMarkt
+
+      - name: Setup SQLite Environment
+        run: |
+          cp .env.example .env
+          # Update .env for SQLite usage
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env
+          php artisan key:generate
+        working-directory: MakersMarkt
+
+      - name: Run Migrations
+        run: php artisan migrate --force
+        working-directory: MakersMarkt
+
+      - name: Run Tests
+        run: php artisan test
+        working-directory: MakersMarkt
