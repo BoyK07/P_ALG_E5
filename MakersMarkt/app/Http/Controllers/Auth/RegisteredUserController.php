@@ -132,13 +132,6 @@ class RegisteredUserController extends Controller
             'password.uncompromised' => 'Dit wachtwoord is gelekt in een datalek. Kies een ander wachtwoord.',
         ]);
 
-        // Verify CSRF token explicitly
-        if ($request->session()->token() !== $request->input('_token')) {
-            return back()
-                ->withInput($request->except('password', 'password_confirmation'))
-                ->withErrors(['general' => 'Beveiligingsvalidatie mislukt. Probeer het opnieuw.']);
-        }
-
         // Begin transaction to ensure data consistency
         DB::beginTransaction();
 
@@ -189,7 +182,7 @@ class RegisteredUserController extends Controller
                 return redirect()->route('verification.notice');
             }
 
-            return redirect()->route('dashboard')->with('success', 'Account succesvol aangemaakt!');
+            return redirect()->route('dashboard')->with('success', 'Je account is succesvol aangemaakt! Je bent nu ingelogd op MakersMarkt.');
 
         } catch (\Exception $e) {
             DB::rollBack();
