@@ -34,9 +34,14 @@ jobs:
         run: npm install
         working-directory: MakersMarkt
 
+      - name: Build Vite Assets
+        run: npm run build
+        working-directory: MakersMarkt
+
       - name: Setup SQLite Environment
         run: |
           cp .env.example .env
+          # Set up environment for SQLite
           sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
           sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env
           php artisan key:generate
