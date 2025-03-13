@@ -28,7 +28,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'  # Upgraded to Node 18 for native Web Crypto support
 
       - name: Install NPM Dependencies
         run: npm install
@@ -41,7 +41,6 @@ jobs:
       - name: Setup SQLite Environment
         run: |
           cp .env.example .env
-          # Set up environment for SQLite
           sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
           sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env
           php artisan key:generate
