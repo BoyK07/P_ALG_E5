@@ -2,9 +2,9 @@ name: Conventions Ensuration
 
 on:
   push:
-    branches: [ master, feature, hotfix, bugfix ]
+    branches: [ master, feature-*, hotfix-*, bugfix-* ]
   pull_request:
-    branches: [ master, feature, hotfix, bugfix ]
+    branches: [ master, feature-*, hotfix-*, bugfix-* ]
   schedule:
     - cron: '0 8 * * 1' # Run weekly on Monday at 8:00 UTC
 
