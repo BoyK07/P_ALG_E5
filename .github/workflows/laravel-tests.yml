@@ -2,9 +2,9 @@ name: Laravel Tests
 
 on:
   push:
-    branches: [ master, feature, hotfix, bugfix ]
+    branches: [ master, feature-*, hotfix-*, bugfix-* ]
   pull_request:
-    branches: [ master, feature, hotfix, bugfix ]
+    branches: [ master, feature-*, hotfix-*, bugfix-* ]
 
 jobs:
   laravel-tests:
