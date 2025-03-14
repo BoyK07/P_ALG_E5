@@ -7,6 +7,8 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -16,7 +18,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        return view('auth.register', [
+            'method' => 'login'
+        ]);
     }
 
     /**
@@ -24,11 +28,33 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        // Set form view to 'login' for any errors
+        session()->flash('_form_view', 'login');
 
-        $request->session()->regenerate();
+        try {
+            // Attempt to authenticate the user
+            $request->authenticate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+            // If successful, regenerate the session
+            $request->session()->regenerate();
+
+            return redirect()->intended(route('dashboard'));
+
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Login failed: ' . $e->getMessage());
+
+            $errorMessage = 'De opgegeven combinatie van inloggegevens is onjuist.';
+
+            // Add the error with login context - include both 'email' and 'auth' keys
+            return back()
+                ->withInput($request->except(['password']))
+                ->with('_form_view', 'login')
+                ->withErrors([
+                    'email' => $errorMessage, // For test compatibility
+                    'auth' => $errorMessage   // For our UI display
+                ]);
+        }
     }
 
     /**
@@ -39,7 +65,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');
