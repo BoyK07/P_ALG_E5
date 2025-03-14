@@ -44,11 +44,16 @@ class AuthenticatedSessionController extends Controller
             // Log the error
             Log::error('Login failed: ' . $e->getMessage());
 
-            // Add the error with login context
+            $errorMessage = 'De opgegeven combinatie van inloggegevens is onjuist.';
+
+            // Add the error with login context - include both 'email' and 'auth' keys
             return back()
                 ->withInput($request->except(['password']))
                 ->with('_form_view', 'login')
-                ->withErrors(['auth' => 'De opgegeven combinatie van inloggegevens is onjuist.']);
+                ->withErrors([
+                    'email' => $errorMessage, // For test compatibility
+                    'auth' => $errorMessage   // For our UI display
+                ]);
         }
     }
 
