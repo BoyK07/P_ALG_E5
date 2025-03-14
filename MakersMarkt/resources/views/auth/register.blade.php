@@ -1,11 +1,11 @@
 <x-guest-layout>
     <div class="min-h-screen bg-[#3b3b3f] text-white" x-data="{
-        activeView: '{{ $method }}',
-        formStep: 1,
+        activeView: '{{ session('_form_view', old('_form_view', $method)) }}',
+        formStep: {{ session('_form_step', old('_form_step', 1)) }},
         maxStep: 3,
         isAnimating: false,
         formData: {
-            roles: []
+            roles: {{ json_encode(old('roles', [])) }}
         },
         changeView(view) {
             if (this.isAnimating) return;
@@ -48,10 +48,39 @@
                 }, 50);
             }, 300);
         }
+    }" x-init="() => {
+        // Make sure steps are visible based on the form step
+        $nextTick(() => {
+            document.querySelectorAll('[id^=step-]').forEach(el => {
+                el.style.opacity = '0';
+            });
+            if (document.getElementById(`step-${formStep}`)) {
+                document.getElementById(`step-${formStep}`).style.opacity = '1';
+            }
+
+            // Determine which tab should be active based on errors
+            @if ($errors->hasAny(['username', 'email', 'password', 'name', 'roles', 'terms', 'general']))
+                // Check if these are login-specific errors
+                @if (session('_form_view') === 'login' || $errors->has('auth'))
+                    activeView = 'login';
+                @else
+                    activeView = 'register';
+                @endif
+            @endif
+
+            // Set initial opacity for the active view
+            if (activeView === 'register') {
+                document.getElementById('register-view').style.opacity = '1';
+                document.getElementById('login-view').style.opacity = '0';
+            } else {
+                document.getElementById('register-view').style.opacity = '0';
+                document.getElementById('login-view').style.opacity = '1';
+            }
+        });
     }" class="relative overflow-hidden">
         <div class="flex min-h-screen">
             <!-- Hoofdinhoud container -->
-            <div class="w-full flex items-center justify-center">
+            <div class="flex items-center justify-center w-full">
                 <div class="w-full max-w-md p-6">
                     <!-- Header met Logo en Schakelaar -->
                     <div class="mb-8 text-center">
@@ -61,12 +90,12 @@
                         <div class="flex justify-center mt-4 space-x-4 border-b border-gray-700">
                             <button @click="changeView('register')"
                                 :class="{ 'text-[#eda566] border-b-2 border-[#eda566] -mb-px': activeView === 'register' }"
-                                class="pb-2 px-4 font-medium focus:outline-none transition-all duration-300">
+                                class="px-4 pb-2 font-medium transition-all duration-300 focus:outline-none">
                                 Registreren
                             </button>
                             <button @click="changeView('login')"
                                 :class="{ 'text-[#eda566] border-b-2 border-[#eda566] -mb-px': activeView === 'login' }"
-                                class="pb-2 px-4 font-medium focus:outline-none transition-all duration-300">
+                                class="px-4 pb-2 font-medium transition-all duration-300 focus:outline-none">
                                 Inloggen
                             </button>
                         </div>
@@ -79,17 +108,24 @@
                             class="transition-opacity duration-300" style="opacity: 1;">
                             <div class="mb-6">
                                 <h2 class="text-2xl font-semibold text-white">Account Aanmaken</h2>
-                                <p class="text-gray-400 mt-1">Word lid van onze gemeenschap van makers en kopers</p>
+                                <p class="mt-1 text-gray-400">Word lid van onze gemeenschap van makers en kopers</p>
                             </div>
 
+                            <!-- Display general registration errors -->
+                            @if ($errors->has('general') && session('_form_view') === 'register')
+                                <div class="p-4 mb-6 text-sm text-red-100 bg-red-500 rounded-md">
+                                    {{ $errors->first('general') }}
+                                </div>
+                            @endif
+
                             <!-- Stap Indicator (Alleen Mobiel) -->
-                            <div class="sm:hidden mb-6">
-                                <div class="flex justify-between items-center">
+                            <div class="mb-6 sm:hidden">
+                                <div class="flex items-center justify-between">
                                     <div class="flex space-x-2">
                                         <template x-for="step in maxStep" :key="step">
                                             <div :class="{ 'bg-[#eda566] text-[#3b3b3f]': formStep >= step, 'bg-gray-600': formStep <
                                                     step }"
-                                                class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300">
+                                                class="flex items-center justify-center w-8 h-8 text-sm font-bold transition-all duration-300 rounded-full">
                                                 <span x-text="step"></span>
                                             </div>
                                         </template>
@@ -101,6 +137,9 @@
 
                             <form method="POST" action="{{ route('register') }}" class="relative">
                                 @csrf
+                                <!-- Hidden fields to preserve form state -->
+                                <input type="hidden" name="_form_view" x-bind:value="activeView">
+                                <input type="hidden" name="_form_step" x-bind:value="formStep">
 
                                 <!-- Stap 1: Basisinformatie -->
                                 <div id="step-1" x-show="formStep === 1" class="transition-opacity duration-300"
@@ -180,7 +219,7 @@
                                         <!-- Profiel Bio (Optioneel) -->
                                         <div>
                                             <label for="profile_bio" class="block text-sm font-medium text-gray-300">
-                                                Profiel Bio <span class="text-gray-500 text-xs">(Optioneel)</span>
+                                                Profiel Bio <span class="text-xs text-gray-500">(Optioneel)</span>
                                             </label>
                                             <textarea id="profile_bio" name="profile_bio" rows="2"
                                                 class="mt-1 block w-full rounded-md bg-[#4a4a50] border-[#5a5a60] text-white shadow-sm focus:border-[#eda566] focus:ring focus:ring-[#eda566] focus:ring-opacity-50">{{ old('profile_bio') }}</textarea>
@@ -189,7 +228,7 @@
                                         <!-- Contactinformatie (Optioneel) -->
                                         <div>
                                             <label for="contact_info" class="block text-sm font-medium text-gray-300">
-                                                Contactinformatie <span class="text-gray-500 text-xs">(Optioneel)</span>
+                                                Contactinformatie <span class="text-xs text-gray-500">(Optioneel)</span>
                                             </label>
                                             <input id="contact_info"
                                                 class="mt-1 block w-full rounded-md bg-[#4a4a50] border-[#5a5a60] text-white shadow-sm focus:border-[#eda566] focus:ring focus:ring-[#eda566] focus:ring-opacity-50"
@@ -216,7 +255,7 @@
                                     <div class="space-y-4">
                                         <!-- Account Type -->
                                         <div class="mb-6">
-                                            <p class="block text-sm font-medium text-gray-300 mb-3">Ik wil MakersMarkt gebruiken als:</p>
+                                            <p class="block mb-3 text-sm font-medium text-gray-300">Ik wil MakersMarkt gebruiken als:</p>
 
                                             <div class="space-y-3">
                                                 <div class="flex items-start">
@@ -249,7 +288,7 @@
                                                     <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
                                                 @enderror
                                                 <div x-show="formData.roles.length === 0"
-                                                    class="text-sm text-red-400 mt-2">
+                                                    class="mt-2 text-sm text-red-400">
                                                     Selecteer minimaal één accounttype.
                                                 </div>
                                             </div>
@@ -292,7 +331,7 @@
                             </form>
 
                             <!-- Heb je al een account prompt (Desktop) -->
-                            <div class="hidden sm:block text-center mt-8">
+                            <div class="hidden mt-8 text-center sm:block">
                                 <p class="text-sm text-gray-400">
                                     Heb je al een account?
                                     <button type="button" @click="changeView('login')"
@@ -309,19 +348,32 @@
                             :style="activeView === 'login' ? 'opacity: 1' : 'opacity: 0'">
                             <div class="mb-6">
                                 <h2 class="text-2xl font-semibold text-white">Welkom Terug</h2>
-                                <p class="text-gray-400 mt-1">Log in op je MakersMarkt account</p>
+                                <p class="mt-1 text-gray-400">Log in op je MakersMarkt account</p>
                             </div>
+
+                            <!-- Streamlined error display - just one section -->
+                            @if(session('_form_view') === 'login')
+                                @if(session('status'))
+                                    <div class="p-4 mb-6 text-sm text-blue-100 bg-blue-500 rounded-md">
+                                        {{ session('status') }}
+                                    </div>
+                                @elseif($errors->any())
+                                    <div class="p-4 mb-6 text-sm text-red-100 bg-red-500 rounded-md">
+                                        {{ $errors->first() }}
+                                    </div>
+                                @endif
+                            @endif
 
                             <!-- Inlogmethode keuze -->
                             <div class="flex justify-center mb-6 bg-[#4a4a50] rounded-lg p-1">
                                 <button type="button" @click="loginMethod = 'email'"
                                     :class="{ 'bg-[#eda566] text-[#3b3b3f]': loginMethod === 'email' }"
-                                    class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-300">
+                                    class="flex-1 px-4 py-2 text-sm font-medium transition-all duration-300 rounded-md">
                                     E-mail
                                 </button>
                                 <button type="button" @click="loginMethod = 'username'"
                                     :class="{ 'bg-[#eda566] text-[#3b3b3f]': loginMethod === 'username' }"
-                                    class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-300">
+                                    class="flex-1 px-4 py-2 text-sm font-medium transition-all duration-300 rounded-md">
                                     Gebruikersnaam
                                 </button>
                             </div>
@@ -357,9 +409,6 @@
                                     <input id="login-password"
                                         class="mt-1 block w-full rounded-md bg-[#4a4a50] border-[#5a5a60] text-white shadow-sm focus:border-[#eda566] focus:ring focus:ring-[#eda566] focus:ring-opacity-50"
                                         type="password" name="password" required autocomplete="current-password" />
-                                    @error('password')
-                                        <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
-                                    @enderror
                                 </div>
 
                                 <!-- Onthoud Mij -->
@@ -367,7 +416,7 @@
                                     <input id="remember_me" type="checkbox"
                                         class="rounded bg-[#4a4a50] border-[#5a5a60] text-[#eda566] shadow-sm focus:ring-[#eda566]"
                                         name="remember">
-                                    <label for="remember_me" class="ml-2 block text-sm text-gray-400">
+                                    <label for="remember_me" class="block ml-2 text-sm text-gray-400">
                                         {{ __('Onthoud mij') }}
                                     </label>
                                 </div>
@@ -382,7 +431,7 @@
                             </form>
 
                             <!-- Geen account prompt -->
-                            <div class="text-center mt-8">
+                            <div class="mt-8 text-center">
                                 <p class="text-sm text-gray-400">
                                     Nog geen account?
                                     <button type="button" @click="changeView('register'); formStep = 1"
@@ -398,7 +447,7 @@
         </div>
 
         <!-- Achtergrond animatie elementen -->
-        <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden -z-10">
+        <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
             <div class="absolute top-0 left-0 w-96 h-96 rounded-full bg-[#eda566] opacity-5 filter blur-3xl"></div>
             <div class="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-[#eda566] opacity-5 filter blur-3xl"></div>
         </div>

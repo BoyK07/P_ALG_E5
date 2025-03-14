@@ -61,6 +61,10 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Remember form state for potential redirection with errors
+        session()->flash('_form_view', 'register');
+        session()->flash('_form_step', $request->input('_form_step', 3));
+
         // Skip rate limiting for testing
         if (!App::environment('testing')) {
             // Apply rate limiting to prevent brute force or DoS attacks
@@ -89,11 +93,7 @@ class RegisteredUserController extends Controller
                 'required',
                 'confirmed',
                 Rules\Password::defaults()
-                    ->mixedCase()
                     ->letters()
-                    ->numbers()
-                    ->symbols()
-                    ->uncompromised(),
             ];
 
         $request->validate([
@@ -191,7 +191,9 @@ class RegisteredUserController extends Controller
             Log::error('Registration failed: ' . $e->getMessage());
 
             return back()
-                ->withInput($request->except('password', 'password_confirmation'))
+                ->withInput($request->except(['password', 'password_confirmation']))
+                ->with('_form_view', 'register')
+                ->with('_form_step', $request->input('_form_step', 3))
                 ->withErrors(['general' => 'Registratie mislukt. Probeer het opnieuw.']);
         }
     }
