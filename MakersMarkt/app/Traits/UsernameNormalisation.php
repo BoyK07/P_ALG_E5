@@ -4,7 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Support\Str;
 
-trait UsernameNormalization
+trait UsernameNormalisation
 {
     /**
      * Set the username attribute with normalization.
