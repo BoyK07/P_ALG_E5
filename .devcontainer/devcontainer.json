@@ -56,6 +56,19 @@
 		9003
 	],
 
+	// Use 'portAttributes' to set specific attributes for the forwarded ports.
+	"portsAttributes": {
+		"8000": {
+				"label": "Laravel Server"
+		},
+		"5173": {
+				"label": "Vite Dev Server"
+		},
+		"9003": {
+				"label": "PHP Xdebug"
+		}
+},
+
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "mkdir -p ~/.local/share/vscode-sqltools && cd ~/.local/share/vscode-sqltools && npm install sqlite3 --quiet --no-progress --no-fund > /dev/null 2>&1 && sudo sh -c 'echo \"xdebug.mode=develop,debug\" >> /usr/local/etc/php/conf.d/xdebug.ini && echo \"xdebug.client_host=host.docker.internal\" >> /usr/local/etc/php/conf.d/xdebug.ini && echo \"xdebug.client_port=9003\" >> /usr/local/etc/php/conf.d/xdebug.ini && echo \"xdebug.start_with_request=trigger\" >> /usr/local/etc/php/conf.d/xdebug.ini'",
 
