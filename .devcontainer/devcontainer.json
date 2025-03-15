@@ -35,7 +35,16 @@
 				"php.validate.enable": true,
 				"php.suggest.basic": false,
 				"php.debug.mode": "req",
-				"php.debug.ideKey": "VSCODE"
+				"php.debug.ideKey": "VSCODE",
+				"sqltools.useNodeRuntime": true,
+				"sqltools.connections": [
+					{
+						"previewLimit": 50,
+						"driver": "SQLite",
+						"name": "Development DB",
+						"database": "${workspaceFolder:P_ALG_E5}/MakersMarkt/database/database.sqlite"
+					}
+				]
 			}
 		}
 	},
@@ -48,7 +57,7 @@
 	],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sudo sh -c 'echo \"xdebug.mode=develop,debug\" >> /usr/local/etc/php/conf.d/xdebug.ini && echo \"xdebug.client_host=host.docker.internal\" >> /usr/local/etc/php/conf.d/xdebug.ini && echo \"xdebug.client_port=9003\" >> /usr/local/etc/php/conf.d/xdebug.ini && echo \"xdebug.start_with_request=trigger\" >> /usr/local/etc/php/conf.d/xdebug.ini'",
+	"postCreateCommand": "mkdir -p ~/.local/share/vscode-sqltools && cd ~/.local/share/vscode-sqltools && npm install sqlite3 --quiet --no-progress --no-fund > /dev/null 2>&1 && sudo sh -c 'echo \"xdebug.mode=develop,debug\" >> /usr/local/etc/php/conf.d/xdebug.ini && echo \"xdebug.client_host=host.docker.internal\" >> /usr/local/etc/php/conf.d/xdebug.ini && echo \"xdebug.client_port=9003\" >> /usr/local/etc/php/conf.d/xdebug.ini && echo \"xdebug.start_with_request=trigger\" >> /usr/local/etc/php/conf.d/xdebug.ini'",
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
