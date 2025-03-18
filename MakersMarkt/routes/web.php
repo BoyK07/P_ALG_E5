@@ -15,25 +15,26 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // All routes for /admin/product
-    Route::group([
-        'prefix' => 'admin',
-        'as' => 'admin.'
-    ], function () {
+    // Product routes
+    Route::prefix('product')->name('product.')->group(function () {
+        Route::post('/', [ProductController::class, 'store'])->name('store');
+        Route::get('/{id}', [ProductController::class, 'show'])->name('show');
+        Route::put('/{id}', [ProductController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
+    });
+
+    // Admin routes
+    Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-        Route::group([
-            'prefix' => 'user',
-            'as' => 'user.'
-        ], function () {
+        // Admin User routes
+        Route::prefix('user')->name('user.')->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('index');
             Route::get('show/{id}', [AdminUserController::class, 'show'])->name('show');
         });
 
-        Route::group([
-            'prefix' => 'product',
-            'as' => 'product.'
-        ], function () {
+        // Admin Product routes
+        Route::prefix('product')->name('product.')->group(function () {
             Route::get('/', [AdminProductController::class, 'index'])->name('index');
             Route::get('show/{id}', [AdminProductController::class, 'show'])->name('show');
         });
@@ -46,11 +47,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::post('/product', [ProductController::class, 'store'])->name('product.store');
-    Route::get('/product/{id}', [ProductController::class, 'show'])->name('product.show');
-    Route::put('/product/{id}', [ProductController::class, 'update'])->name('product.update');
-    Route::delete('/product/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
-});
-
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
