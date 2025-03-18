@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
     {
         // Create roles
         $adminRole = Role::factory()->admin()->create();
-        $moderatorRole = Role::factory()->moderator()->create();
         $makerRole = Role::factory()->maker()->create();
         $buyerRole = Role::factory()->buyer()->create();
 
@@ -33,14 +32,6 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
         ]);
         $admin->roles()->attach($adminRole);
-
-        // Create moderator user
-        $moderator = User::factory()->create([
-            'name' => 'Moderator User',
-            'username' => 'moderator',
-            'email' => 'moderator@example.com',
-        ]);
-        $moderator->roles()->attach($moderatorRole);
 
         // Create 5 makers
         $makers = User::factory()->count(5)->maker()->create();
@@ -116,15 +107,6 @@ class DatabaseSeeder extends Seeder
             Notification::factory()
                 ->count(fake()->numberBetween(2, 8))
                 ->create(['user_id' => $user->id]);
-        }
-
-        // Create moderations by moderators
-        $moderators = collect([$admin, $moderator]);
-        foreach ($products->random(5) as $product) {
-            Moderation::factory()->create([
-                'product_id' => $product->product_id,
-                'moderator_id' => $moderators->random()->id,
-            ]);
         }
 
         // Create reports from random buyers
