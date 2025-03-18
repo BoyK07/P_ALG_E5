@@ -29,6 +29,7 @@ return new class extends Migration
             // More Laravel/Breeze fields
             $table->string('password');
             $table->rememberToken();
+            $table->boolean('verified')->default(false);
             $table->timestamps();
         });
 
