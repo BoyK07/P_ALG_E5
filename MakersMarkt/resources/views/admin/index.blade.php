@@ -27,7 +27,7 @@
                         </thead>
                         <tbody id="userTableBody">
                             @foreach ($users as $user)
-                                <tr class="border-b hover:bg-gray-50">
+                                <tr class="border-b hover:bg-gray-50">w
                                     <td class="px-4 py-2 border">{{ $user->id }}</td>
                                     <td class="px-4 py-2 border">
                                         <a href="{{ route('admin.user.show', $user->id) }}"
