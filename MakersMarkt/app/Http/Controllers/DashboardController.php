@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Product;
-use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -14,9 +12,7 @@ class DashboardController extends Controller
 
         // Determine which layout to use based on user role
         if ($user->hasRole('admin') || $user->hasRole('moderator')) {
-            $users = User::where('verified', false)->get();
-            $products = Product::all();
-            return view('admin.index', compact('products', 'users'));
+            return redirect()->route('admin.dashboard');
         }
 
         if ($user->hasRole('maker')) {

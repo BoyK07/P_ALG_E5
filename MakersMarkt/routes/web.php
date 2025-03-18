@@ -3,7 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -15,21 +17,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // All routes for /admin/product
     Route::group([
         'prefix' => 'admin',
-        'middleware' => 'role:admin',
         'as' => 'admin.'
     ], function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
         Route::group([
             'prefix' => 'user',
             'as' => 'user.'
         ], function () {
-            Route::get('show/{id}', [DashboardController::class, 'show'])->name('show');
+            Route::get('/', [AdminUserController::class, 'index'])->name('index');
+            Route::get('show/{id}', [AdminUserController::class, 'show'])->name('show');
         });
 
         Route::group([
             'prefix' => 'product',
             'as' => 'product.'
         ], function () {
-            Route::get('show/{id}', [ProductController::class, 'show'])->name('show');
+            Route::get('/', [AdminProductController::class, 'index'])->name('index');
+            Route::get('show/{id}', [AdminProductController::class, 'show'])->name('show');
         });
     });
 });
