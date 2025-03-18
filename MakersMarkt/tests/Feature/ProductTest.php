@@ -12,20 +12,13 @@ class ProductTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        
-        // Create the maker role
-        Role::create(['name' => 'maker']);
-    }
-
     public function test_create_product()
     {
         /**
          * @var User $user
          */
         $user = User::factory()->create();
+        Role::create(['name' => 'maker']);
         $user->roles()->attach(Role::where('name', 'maker')->first());
 
         $response = $this->actingAs($user)->post('/product', [
