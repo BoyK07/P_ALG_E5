@@ -13,14 +13,10 @@ class DashboardController extends Controller
         $user = $request->user();
 
         // Determine which layout to use based on user role
-        if ($user->hasRole('admin')) {
+        if ($user->hasRole('admin') || $user->hasRole('moderator')) {
             $users = User::where('verified', false)->get();
             $products = Product::all();
             return view('admin.index', compact('products', 'users'));
-        }
-
-        if ($user->hasRole('moderator')) {
-            return view('moderator.index');
         }
 
         if ($user->hasRole('maker')) {

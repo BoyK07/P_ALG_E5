@@ -50,7 +50,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'username' => 'testuser',
             'email' => 'test@example.com',
-            'password' => bcrypt('password'),
         ]);
         $testUser->roles()->attach([$makerRole->role_id, $buyerRole->role_id]);
 
