@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -14,25 +15,26 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // All routes for /admin/product
-    Route::group([
-        'prefix' => 'admin',
-        'as' => 'admin.'
-    ], function () {
+    // Product routes
+    Route::prefix('product')->name('product.')->group(function () {
+        Route::post('/', [ProductController::class, 'store'])->name('store');
+        Route::get('/{id}', [ProductController::class, 'show'])->name('show');
+        Route::put('/{id}', [ProductController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
+    });
+
+    // Admin routes
+    Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-        Route::group([
-            'prefix' => 'user',
-            'as' => 'user.'
-        ], function () {
+        // Admin User routes
+        Route::prefix('user')->name('user.')->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('index');
             Route::get('show/{id}', [AdminUserController::class, 'show'])->name('show');
         });
 
-        Route::group([
-            'prefix' => 'product',
-            'as' => 'product.'
-        ], function () {
+        // Admin Product routes
+        Route::prefix('product')->name('product.')->group(function () {
             Route::get('/', [AdminProductController::class, 'index'])->name('index');
             Route::get('show/{id}', [AdminProductController::class, 'show'])->name('show');
         });
