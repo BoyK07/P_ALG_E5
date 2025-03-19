@@ -73,10 +73,8 @@ class ProductTest extends TestCase
         $response = $this->actingAs($user)->get('/product/' . $product->product_id);
 
         $response->assertStatus(200);
-        $response->assertJson([
-            'name' => $product->name,
-            'description' => $product->description,
-        ]);
+        $response->assertSee($product->name);
+        $response->assertSee($product->description);
     }
 
     public function test_update_product()
