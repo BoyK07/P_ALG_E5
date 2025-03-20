@@ -41,17 +41,19 @@
                 <input type="hidden" name="contains_external_links" value="0">
                 <input type="checkbox" name="contains_external_links" id="contains_external_links" value="1" {{ $product->contains_external_links ? 'checked' : '' }} class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
             </div>
-            <div class="flex justify-end">
-                {{-- @can('delete', $product)
-                <form method="POST" action="{{ route('product.destroy', ['id' => $product->product_id]) }}" class="mt-4">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Verwijderen</button>
-                </form>
-                @endcan --}}
+            <div class="flex justify-between">
+                @can('delete', $product)
+                    <form method="POST" action="{{ route('product.destroy', ['id' => $product->product_id]) }}" class="mt-4">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Verwijderen</button>
+                    </form>
+                @endcan
 
-                <button type="button" @click="show = false" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Annuleren</button>
-                <button type="submit" class="ml-3 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Opslaan</button>
+                <div>
+                    <button type="button" @click="show = false" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Annuleren</button>
+                    <button type="submit" class="ml-3 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Opslaan</button>
+                </div>
             </div>
         </form>
 
