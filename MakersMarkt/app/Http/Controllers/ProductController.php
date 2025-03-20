@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Http\Request;
 use App\Http\Requests\ProductRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -32,7 +33,7 @@ class ProductController extends Controller
         $product->maker_id = Auth::id();
         $product->save();
 
-        return response()->json($product, 201);
+        return redirect()->route('product.show', $product->product_id);
     }
 
     /**
@@ -59,7 +60,7 @@ class ProductController extends Controller
         $product->fill($request->validated());
         $product->save();
 
-        return response()->json($product);
+        return redirect()->route('product.show', $product->product_id);
     }
 
     /**
@@ -71,9 +72,9 @@ class ProductController extends Controller
 
         $this->authorize('delete', $product);
 
-        // $product->delete();
+        $product->delete();
 
-        return response()->json(null, 204);
+        return redirect()->route('product.index');
     }
 
     /**

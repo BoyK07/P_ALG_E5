@@ -37,8 +37,9 @@
             </div>
             <div class="mb-4">
                 <label for="contains_external_links" class="block text-sm font-medium text-gray-700">Bevat Externe Links</label>
-                <input type="checkbox" name="contains_external_links" id="contains_external_links" class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
-            </div>
+                <input type="hidden" name="contains_external_links" value="0">
+                <input type="checkbox" name="contains_external_links" id="contains_external_links" value="1" class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
+            </div>            
             <div class="flex justify-end">
                 <button type="submit" class="ml-3 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Aanmaken</button>
             </div>

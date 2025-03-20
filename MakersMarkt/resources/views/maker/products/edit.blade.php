@@ -38,7 +38,8 @@
             </div>
             <div class="mb-4">
                 <label for="contains_external_links" class="block text-sm font-medium text-gray-700">Bevat Externe Links</label>
-                <input type="checkbox" name="contains_external_links" id="contains_external_links" {{ $product->contains_external_links ? 'checked' : '' }} class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
+                <input type="hidden" name="contains_external_links" value="0">
+                <input type="checkbox" name="contains_external_links" id="contains_external_links" value="1" {{ $product->contains_external_links ? 'checked' : '' }} class="mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
             </div>
             <div class="flex justify-end">
                 {{-- @can('delete', $product)
