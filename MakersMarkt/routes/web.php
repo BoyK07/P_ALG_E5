@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductController as TestProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -17,10 +17,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Product routes
     Route::prefix('product')->name('product.')->group(function () {
-        Route::post('/', [ProductController::class, 'store'])->name('store');
-        Route::get('/{id}', [ProductController::class, 'show'])->name('show');
-        Route::put('/{id}', [ProductController::class, 'update'])->name('update');
-        Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
+        Route::get('/', [TestProductController::class, 'index'])->name('index');
+        Route::get('/create', [TestProductController::class, 'create'])->name('create');
+        Route::post('/', [TestProductController::class, 'store'])->name('store');
+        Route::get('/{id}', [TestProductController::class, 'show'])->name('show');
+        Route::put('/{id}', [TestProductController::class, 'update'])->name('update');
+        Route::delete('/{id}', [TestProductController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/edit', [TestProductController::class, 'edit'])->name('edit');
     });
 
     // Admin routes

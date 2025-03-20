@@ -16,13 +16,13 @@ class ProductPolicy
     {
         return Response::allow();
     }
-    
+
     /**
      * Determine whether the user can create products.
      */
     public function create(User $user): Response
     {
-        return $user->hasRole('maker')
+        return ($user->hasRole('maker') || $user->hasRole('admin') || $user->hasRole('moderator'))
             ? Response::allow()
             : Response::deny('You do not have permission to create products.');
     }
@@ -48,7 +48,8 @@ class ProductPolicy
     {
         return (
             $user->id === $product->maker_id ||
-            $user->hasRole('admin')
+            $user->hasRole('admin') ||
+            $user->hasRole('moderator')
         )
             ? Response::allow()
             : Response::deny('You do not have permission to delete this product.');
