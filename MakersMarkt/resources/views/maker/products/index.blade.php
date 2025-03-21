@@ -61,6 +61,10 @@
                            class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
                             Bekijk Product
                         </a>
+                        <a href="{{ route('product.show', $product->product_id) }}"
+                            class="bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 ml-2">
+                             Koop Product
+                         </a>
                     </div>
                 </div>
             @endforeach
@@ -74,7 +78,7 @@
             const valueFilterContainer = document.getElementById('value-filter-container');
             const productList = document.getElementById('product-list');
             const products = productList.querySelectorAll('.product-card');
-            
+
             // Function to collect unique values for a specific attribute
             function getUniqueValues(attribute) {
                 const values = new Set();
@@ -84,64 +88,64 @@
                         values.add(value);
                     }
                 });
-                
+
                 // Convert to array for sorting
                 let valuesArray = Array.from(values);
-                
+
                 // Sort numerically if it's production_time, otherwise sort alphabetically
                 if (attribute === 'production_time') {
                     valuesArray.sort((a, b) => parseInt(a) - parseInt(b));
                 } else {
                     valuesArray.sort();
                 }
-                
+
                 return valuesArray;
             }
-            
+
             // Function to update the value filter dropdown
             function updateValueFilter(category) {
                 // Clear previous options
                 filterValue.innerHTML = '<option value="">Alle</option>';
-                
+
                 if (!category) {
                     valueFilterContainer.style.display = 'none';
                     return;
                 }
-                
+
                 // Show the values dropdown
                 valueFilterContainer.style.display = 'block';
-                
+
                 // Get unique values for the selected category
                 const uniqueValues = getUniqueValues(category);
-                
+
                 // Add options for each unique value
                 uniqueValues.forEach(value => {
                     const option = document.createElement('option');
                     option.value = value;
-                    
+
                     // For production_time, append "dagen" to the display text
                     if (category === 'production_time') {
                         option.textContent = value + ' dagen';
                     } else {
                         option.textContent = value;
                     }
-                    
+
                     filterValue.appendChild(option);
                 });
             }
-            
+
             // Function to apply filters
             function applyFilters() {
                 const category = filterCategory.value;
                 const value = filterValue.value;
-                
+
                 products.forEach(product => {
                     if (!category) {
                         // No category selected, show all products
                         product.style.display = 'flex';
                     } else {
                         const attributeValue = product.getAttribute('data-' + category);
-                        
+
                         if (!value) {
                             // Only category selected, show all products with that attribute
                             product.style.display = attributeValue ? 'flex' : 'none';
@@ -152,13 +156,13 @@
                     }
                 });
             }
-            
+
             // Event listener for category filter change
             filterCategory.addEventListener('change', function() {
                 updateValueFilter(this.value);
                 applyFilters();
             });
-            
+
             // Event listener for value filter change
             filterValue.addEventListener('change', function() {
                 applyFilters();
